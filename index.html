@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stackfold - Transforming Consumer Records</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #1a1a1a;
+            --accent: #00d4ff;
+            --accent-dark: #00a8cc;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --border: rgba(0, 212, 255, 0.2);
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { font-family: 'Inter', sans-serif; background: var(--bg-primary); color: var(--text-primary); overflow-x: hidden; }
+        body { line-height: 1.6; }
+        nav { position: fixed; top: 0; width: 100%; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(20px); z-index: 50; padding: 1rem 0; }
+        nav ul { display: flex; justify-content: center; list-style: none; gap: 2rem; }
+        nav a { color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.3s; }
+        nav a:hover { color: var(--accent); text-decoration: underline; text-underline-offset: 4px; filter: drop-shadow(0 0 5px var(--accent)); }
+        .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; position: relative; background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%); }
+        .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 20% 80%, var(--accent) 0%, transparent 50%); opacity: 0.1; animation: pulse 4s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 0.1; transform: scale(1); } 50% { opacity: 0.2; transform: scale(1.05); } }
+        .hero h1 { font-size: clamp(3rem, 8vw, 6rem); font-weight: 800; margin-bottom: 1rem; background: linear-gradient(45deg, var(--text-primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; position: relative; z-index: 10; }
+        .hero p { font-size: clamp(1rem, 2.5vw, 1.2rem); max-width: 600px; margin-bottom: 2rem; color: var(--text-secondary); position: relative; z-index: 10; }
+        .gauges { display: flex; gap: 2rem; position: relative; z-index: 10; }
+        .gauge { width: 80px; height: 80px; border: 2px solid var(--accent); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 700; background: radial-gradient(circle, var(--accent) 0%, transparent 70%); opacity: 0.8; transition: all 0.3s; text-align: center; filter: drop-shadow(0 0 10px rgba(0,212,255,0.3)); }
+        .gauge:hover { transform: scale(1.05); filter: drop-shadow(0 0 20px var(--accent)); }
+        .gauge .label { font-size: 0.75rem; margin-top: 0.25rem; color: var(--text-secondary); }
+        .gauge:nth-child(2) { background: radial-gradient(circle, var(--accent) 37%, transparent 70%); }
+        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; padding: 5rem 2rem; max-width: 1400px; margin: 0 auto; }
+        .card { background: var(--bg-secondary); border-radius: 16px; padding: 2rem; border: 1px solid var(--border); box-shadow: var(--shadow); transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; filter: drop-shadow(0 0 5px var(--accent)); }
+        .card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
+        .card:hover::before { transform: scaleX(1); }
+        .card h3 { font-size: 1.25rem; margin-bottom: 1rem; color: var(--accent); font-weight: 600; }
+        .chart-container { position: relative; height: 250px; margin: 1rem 0; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); background: var(--bg-primary); }
+        .cta { text-align: center; padding: 5rem 2rem; background: var(--bg-secondary); }
+        .cta h2 { font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 800; margin-bottom: 1rem; background: linear-gradient(45deg, var(--text-primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .cta p { font-size: 1.125rem; color: var(--text-secondary); margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto; }
+        .btn { background: var(--accent); color: var(--bg-primary); padding: 1rem 2rem; border: none; border-radius: 50px; font-weight: 600; font-size: 1rem; text-decoration: none; transition: all 0.3s; cursor: pointer; display: inline-block; filter: drop-shadow(0 0 10px rgba(0,212,255,0.3)); }
+        .btn:hover { background: var(--accent-dark); transform: scale(1.05); box-shadow: var(--shadow); filter: drop-shadow(0 0 20px var(--accent)); }
+        .pricing { padding: 5rem 2rem; background: var(--bg-secondary); text-align: center; }
+        .pricing h2 { font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 800; margin-bottom: 1rem; background: linear-gradient(45deg, var(--text-primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .pricing p { font-size: 1.125rem; color: var(--text-secondary); margin-bottom: 4rem; max-width: 600px; margin-left: auto; margin-right: auto; }
+        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto; }
+        .pricing-card { background: var(--bg-primary); border-radius: 16px; padding: 2.5rem; border: 1px solid var(--border); box-shadow: var(--shadow); transition: all 0.3s; position: relative; overflow: hidden; text-align: left; }
+        .pricing-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; }
+        .pricing-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
+        .pricing-card:hover::before { transform: scaleX(1); }
+        .pricing-card h3 { font-size: 1.5rem; color: var(--accent); margin-bottom: 1rem; font-weight: 600; }
+        .pricing-card .price { font-size: 3rem; font-weight: 800; color: var(--text-primary); margin-bottom: 0.5rem; }
+        .pricing-card .price-unit { color: var(--text-secondary); margin-bottom: 2rem; }
+        .pricing-card ul { list-style: none; margin-bottom: 2rem; }
+        .pricing-card li { margin-bottom: 0.5rem; color: var(--text-secondary); }
+        .pricing-card li span { color: var(--accent); margin-right: 0.5rem; }
+        .pricing-card .btn { width: 100%; margin-bottom: 1rem; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); }
+        .modal-content { background: var(--bg-secondary); margin: 15% auto; padding: 2rem; border-radius: 16px; width: 80%; max-width: 500px; text-align: center; border: 1px solid var(--border); position: relative; box-shadow: var(--shadow-lg); }
+        .close { color: var(--text-secondary); float: right; font-size: 28px; font-weight: bold; cursor: pointer; position: absolute; right: 1rem; top: 1rem; transition: color 0.3s; }
+        .close:hover { color: var(--accent); }
+        .modal input { width: 100%; padding: 0.75rem; margin: 1rem 0; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-primary); color: var(--text-primary); font-size: 1rem; transition: border-color 0.3s; }
+        .modal input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 10px rgba(0,212,255,0.3); }
+        footer { background: var(--bg-primary); padding: 3rem 2rem 1rem; text-align: center; border-top: 1px solid var(--border); }
+        .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto 2rem; text-align: left; }
+        .footer-grid h4 { color: var(--accent); margin-bottom: 1rem; font-weight: 600; }
+        .footer-grid a { color: var(--text-secondary); text-decoration: none; display: block; margin-bottom: 0.5rem; transition: all 0.3s; }
+        .footer-grid a:hover { color: var(--accent); transform: translateX(5px); }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade { animation: fadeInUp 0.8s ease forwards; opacity: 0; }
+        .animate-fade:nth-child(1) { animation-delay: 0.1s; }
+        .animate-fade:nth-child(2) { animation-delay: 0.2s; }
+        .animate-fade:nth-child(3) { animation-delay: 0.3s; }
+        @media (max-width: 768px) { nav ul { gap: 1rem; } .hero h1 { font-size: 2.5rem; } .gauges { flex-direction: column; align-items: center; gap: 1rem; } .dashboard { grid-template-columns: 1fr; gap: 1.5rem; padding: 3rem 1rem; } .cta h2, .pricing h2 { font-size: 2.5rem; } .pricing-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#products">Products</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li><a href="#faq">FAQ</a></li>
+        </ul>
+    </nav>
+
+    <section class="hero" id="home">
+        <h1>Transforming Consumer Records</h1>
+        <p>The platform designed to feel like a luxury dashboard, with bold typography, exclusivity, and trust for high-stakes decisions.</p>
+        <div class="gauges">
+            <div class="gauge">
+                <div>280M+</div>
+                <div class="label">Records</div>
+            </div>
+            <div class="gauge">
+                <div>0.6%</div>
+                <div class="label">MoM Growth</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="dashboard">
+        <div class="card animate-fade">
+            <h3>Monthly Spending Growth (Nominal PCE)</h3>
+            <div class="chart-container">
+                <canvas id="barChart"></canvas>
+            </div>
+            <p>Derived from 280M+ records | BEA Aug 2025: +0.6% MoM ($129.2B Surge)</p>
+        </div>
+        <div class="card animate-fade">
+            <h3>YoY Consumption Trends (PCE Price Index)</h3>
+            <div class="chart-container">
+                <canvas id="lineChart"></canvas>
+            </div>
+            <p>Sustainable growth precision | Aug 2025: +2.7% YoY</p>
+        </div>
+        <div class="card animate-fade">
+            <h3>PCE Breakdown (Aug Increases)</h3>
+            <div class="chart-container">
+                <canvas id="pieChart"></canvas>
+            </div>
+            <p>Services vs. Goods | $77.2B (60%) / $52.0B (40%)</p>
+        </div>
+    </section>
+
+    <section class="cta">
+        <h2>Unlock the Power of Elevate Your</h2>
+        <p>Discover the insights that will transform your business and elevate your decision-making with Stackfold's derived indices.</p>
+        <button class="btn" onclick="openModal()">Request Demo</button>
+    </section>
+
+    <section class="pricing">
+        <h2>Pricing Plans</h2>
+        <p>Choose your tier—powered by real-time BEA Aug 2025 insights (+0.6% MoM PCE Surge). Start free trial today.</p>
+        <div class="pricing-grid">
+            <div class="pricing-card animate-fade">
+                <h3>Basic</h3>
+                <div class="price">$99</div>
+                <div class="price-unit">/mo</div>
+                <ul>
+                    <li><span>•</span> 10K Leads/Mo</li>
+                    <li><span>•</span> Basic Charts</li>
+                    <li><span>•</span> Email Support</li>
+                </ul>
+                <button class="btn" onclick="alert('Basic trial started!')">Subscribe</button>
+            </div>
+            <div class="pricing-card animate-fade" style="border: 2px solid var(--accent); box-shadow: var(--shadow-lg);">
+                <h3>Pro</h3>
+                <div class="price">$299</div>
+                <div class="price-unit">/mo</div>
+                <ul>
+                    <li><span>•</span> 100K Leads/Mo</li>
+                    <li><span>•</span> Full Indices Access</li>
+                    <li><span>•</span> Priority Support</li>
+                </ul>
+                <button class="btn" style="background: var(--accent-dark);" onclick="alert('Pro trial started!')">Subscribe</button>
+            </div>
+            <div class="pricing-card animate-fade">
+                <h3>Enterprise</h3>
+                <div class="price">$999</div>
+                <div class="price-unit">/mo</div>
+                <ul>
+                    <li><span>•</span> Unlimited Leads</li>
+                    <li><span>•</span> Custom API + Indices</li>
+                    <li><span>•</span> Dedicated Manager</li>
+                </ul>
+                <button class="btn" onclick="alert('Enterprise contact initiated!')">Contact Us</button>
+            </div>
+        </div>
+    </section>
+
+    <div id="demoModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3>Schedule Your Stackfold Demo</h3>
+            <p>Access premium data leads and indices tailored for high-stakes sales.</p>
+            <form onsubmit="submitLead(event)">
+                <input type="email" placeholder="Your Email" required>
+                <button type="submit" class="btn">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-grid">
+            <div>
+                <h4>Quick Links</h4>
+                <a href="#home">Home</a>
+                <a href="#about">About</a>
+                <a href="#products">Products</a>
+            </div>
+            <div>
+                <h4>Resources</h4>
+                <a href="#insights">Insights</a>
+                <a href="#support">Support</a>
+                <a href="#privacy">Privacy</a>
+            </div>
+            <div>
+                <h4>Connect</h4>
+                <a href="#twitter">Twitter</a>
+                <a href="#facebook">Facebook</a>
+                <a href="#instagram">Instagram</a>
+            </div>
+        </div>
+        <p>&copy; 2025 Stackfold, Inc. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // BEA Aug 2025 Data (Sep 26 Release)
+        const months = ['Jun', 'Jul', 'Aug 2025'];
+        const growthData = [0.4, 0.5, 0.6]; // MoM %
+        const yoyLabels = ['Q2 2024', 'Q1 2025', 'Q2 2025', 'Q3 2025'];
+        const yoyData = [2.5, 2.6, 2.6, 2.7]; // YoY %
+        const pieData = [77.2, 52.0]; // $B Services/Goods
+
+        // Bar Chart
+        new Chart(document.getElementById('barChart'), {
+            type: 'bar',
+            data: { labels: months, datasets: [{ label: 'MoM Growth (%)', data: growthData, backgroundColor: '#00d4ff', borderRadius: 4, borderSkipped: false }] },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { legend: { display: false } }, 
+                scales: { 
+                    y: { beginAtZero: true, grid: { color: 'rgba(0,212,255,0.1)' }, ticks: { color: '#b0b0b0' } }, 
+                    x: { grid: { display: false }, ticks: { color: '#b0b0b0' } } 
+                },
+                plugins: { tooltip: { backgroundColor: 'rgba(0,212,255,0.9)', titleColor: 'white', bodyColor: 'white' } }
+            }
+        });
+
+        // Line Chart
+        new Chart(document.getElementById('lineChart'), {
+            type: 'line',
+            data: { 
+                labels: yoyLabels, 
+                datasets: [{ 
+                    label: 'YoY Growth (%)', 
+                    data: yoyData, 
+                    borderColor: '#00d4ff', 
+                    backgroundColor: 'rgba(0,212,255,0.1)', 
+                    tension: 0.4, 
+                    fill: true, 
+                    pointBackgroundColor: '#00d4ff', 
+                    pointBorderColor: '#00d4ff', 
+                    pointRadius: 4 
+                }] 
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                scales: { 
+                    y: { beginAtZero: true, grid: { color: 'rgba(0,212,255,0.1)' }, ticks: { color: '#b0b0b0' } }, 
+                    x: { grid: { display: false }, ticks: { color: '#b0b0b0' } } 
+                },
+                plugins: { 
+                    legend: { display: true, labels: { color: '#00d4ff', font: { size: 12, weight: 'bold' }, padding: 20 } },
+                    tooltip: { backgroundColor: 'rgba(0,212,255,0.9)', titleColor: 'white', bodyColor: 'white' } 
+                }
+            }
+        });
+
+        // Pie Chart
+        new Chart(document.getElementById('pieChart'), {
+            type: 'pie',
+            data: { 
+                labels: ['Services ($77.2B)', 'Goods ($52.0B)'], 
+                datasets: [{ data: pieData, backgroundColor: ['#00d4ff', '#00a8cc'], borderWidth: 0, borderRadius: 8 }] 
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false,
+                plugins: { 
+                    legend: { position: 'bottom', labels: { color: '#00d4ff', font: { size: 12, weight: 'bold' }, padding: 20 } },
+                    tooltip: { backgroundColor: 'rgba(0,212,255,0.9)', titleColor: 'white', bodyColor: 'white' } 
+                }
+            }
+        });
+
+        function openModal() { document.getElementById('demoModal').style.display = 'block'; document.body.style.overflow = 'hidden'; }
+        function closeModal() { document.getElementById('demoModal').style.display = 'none'; document.body.style.overflow = 'auto'; }
+        function submitLead(e) { e.preventDefault(); alert('Lead submitted—welcome to Stackfold!'); closeModal(); }
+        window.onclick = function(e) { if (e.target.classList.contains('modal')) closeModal(); };
+    </script>
+</body>
+</html>
