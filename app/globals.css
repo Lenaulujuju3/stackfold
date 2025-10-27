@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+.hero {
+  background-image: url('/hero-bg.jpg');
+  background-size: cover;
+  filter: blur(4px);
+  -webkit-filter: blur(4px);
+}
+
+.transparent-section {
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+.solid-card {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+}
+
+.gradient-accent {
+  background: linear-gradient(to right, #0d9488, #3b82f6);
+}
+
+.wave-divider {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23f3f4f6' fill-opacity='1' d='M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,245.3C672,224,768,160,864,160C960,160,1056,224,1152,229.3C1248,235,1344,181,1392,154.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
+  height: 100px;
+  background-size: cover;
+}
