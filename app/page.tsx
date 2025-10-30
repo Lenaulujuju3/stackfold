@@ -16,12 +16,12 @@ export default function Home() {
       <Hero />
       <div className="wave-divider" />
       <section className="container mx-auto py-8">
-        <h2 className="text-2xl font-bold mb-4">The StackFold Difference</h2>
+        <h2 className="text-2xl font-bold mb-4 text-teal">The StackFold Difference</h2>
         <p>StackFold leverages large-scale signals and custom indices to drive efficiency in data analytics and lead generation.</p>
       </section>
       <div className="wave-divider" />
       <section className="container mx-auto py-8">
-        <h2 className="text-2xl font-bold mb-4">Verticals</h2>
+        <h2 className="text-2xl font-bold mb-4 text-teal">Verticals</h2>
         <Carousel items={verticals.map(v => ({ title: v, icon: "📊" }))} />
       </section>
       <div className="wave-divider" />
@@ -33,7 +33,7 @@ export default function Home() {
       </section>
       <div className="wave-divider" />
       <section className="container mx-auto py-8">
-        <h2 className="text-2xl font-bold mb-4">Packages</h2>
+        <h2 className="text-2xl font-bold mb-4 text-teal">Packages</h2>
         <div className="flex space-x-4 overflow-x-auto no-scrollbar snap-x snap-mandatory">
           <PackageCard title="Basic" bullets={["Access to leads", "Basic analytics"]} />
           <PackageCard title="Pro" bullets={["Full leads access", "Advanced indices"]} />
@@ -42,12 +42,12 @@ export default function Home() {
       </section>
       <div className="wave-divider" />
       <section className="container mx-auto py-8">
-        <h2 className="text-2xl font-bold mb-4">Seller Portal Application</h2>
+        <h2 className="text-2xl font-bold mb-4 text-teal">Seller Portal Application</h2>
         <SellForm />
       </section>
       <div className="wave-divider" />
       <section className="container mx-auto py-8">
-        <h2 className="text-2xl font-bold mb-4">Contact</h2>
+        <h2 className="text-2xl font-bold mb-4 text-teal">Contact</h2>
         <ContactForm />
       </section>
     </main>

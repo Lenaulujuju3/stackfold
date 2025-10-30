@@ -1,3 +1,4 @@
+// components/SFCard.tsx
 export default function SFCard({
   title,
   children,
