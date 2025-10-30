@@ -23,11 +23,12 @@ body {
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(13, 148, 136, 0.1); /* Teal shadow */
   padding: 16px;
-  transition: box-shadow 0.3s ease;
+  transition: box-shadow 0.3s ease, background-color 0.3s ease;
 }
 
 .solid-card:hover {
   box-shadow: 0 4px 8px rgba(13, 148, 136, 0.2); /* Teal hover shadow */
+  background-color: #0d94880a; /* Light teal hover background */
 }
 
 .gradient-accent {
