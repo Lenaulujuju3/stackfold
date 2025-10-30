@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Providers from "@/components/Providers";  // Add this import
+import Providers from "@/components/Providers";
 import Link from "next/link";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -24,24 +24,24 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Providers>  {/* Wrap here */}
-          <nav className="bg-gradient-accent text-white p-4">
-            <div className="container mx-auto flex justify-between">
-              <Link href="/" className="font-bold">StackFold</Link>
-              <div>
-                <Link href="/packages" className="mx-2">Packages</Link>
-                <Link href="/products" className="mx-2">Products</Link>
-                <Link href="/about" className="mx-2">About</Link>
-                <Link href="/dashboard" className="mx-2">Dashboard</Link>
-                <Link href="/sell" className="mx-2">Sell</Link>
-                <Link href="/contact" className="mx-2">Contact</Link>
-                <Link href="/login" className="mx-2">Login</Link>
-                <Link href="/register" className="mx-2">Register</Link>
+        <Providers>
+          <nav className="gradient-accent text-white p-4 shadow-md">
+            <div className="container mx-auto flex justify-between items-center">
+              <Link href="/" className="font-bold text-xl">StackFold</Link>
+              <div className="space-x-4">
+                <Link href="/packages" className="hover:text-teal">Packages</Link>
+                <Link href="/products" className="hover:text-teal">Products</Link>
+                <Link href="/about" className="hover:text-teal">About</Link>
+                <Link href="/dashboard" className="hover:text-teal">Dashboard</Link>
+                <Link href="/sell" className="hover:text-teal">Sell</Link>
+                <Link href="/contact" className="hover:text-teal">Contact</Link>
+                <Link href="/login" className="hover:text-teal">Login</Link>
+                <Link href="/register" className="hover:text-teal">Register</Link>
               </div>
             </div>
           </nav>
           {children}
-          <footer className="bg-gray-800 text-white p-4 text-center">
+          <footer className="bg-gray-800 text-white p-4 text-center mt-auto">
             &copy; 2025 StackFold. All rights reserved.
           </footer>
         </Providers>
