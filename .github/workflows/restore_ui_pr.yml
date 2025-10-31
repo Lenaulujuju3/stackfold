@@ -1,0 +1,41 @@
+name: Restore UI via PR
+on:
+  workflow_dispatch:
+
+jobs:
+  restore:
+    permissions:
+      contents: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Prepare restore branch from master
+        run: |
+          set -e
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          # make sure we have remote branches
+          git fetch origin
+          # start a new branch from current master
+          git checkout -B restore-829b046 origin/master
+          # hard set the working tree to the full-UI commit
+          git reset --hard 829b046
+          # push the new branch
+          git push -u origin restore-829b046 --force
+
+      - name: Open Pull Request to master
+        env:
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          title="Restore full StackFold UI from 829b046 (keep deploy config)"
+          body=$'This PR restores the UI from commit 829b046 and will be followed by a tiny patch to keep Node/Tailwind/Vercel configs stable.'
+          api="https://api.github.com/repos/${GH_REPO}/pulls"
+          data=$(jq -nc --arg title "$title" --arg head "restore-829b046" --arg base "master" --arg body "$body" '{title:$title, head:$head, base:$base, body:$body}')
+          curl -sS -H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" -d "$data" "$api" | jq .
