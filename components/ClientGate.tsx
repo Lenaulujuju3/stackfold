@@ -1,1 +1,0 @@
-\"use client\";\nimport { useEffect, useState } from \"react\";\nexport default function ClientGate({ children }: { children: React.ReactNode }) {\n  const [ready, setReady] = useState(false);\n  useEffect(() => setReady(true), []);\n  return ready ? <>{children}</> : null;\n}

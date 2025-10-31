@@ -1,1 +1,7 @@
-{\n  \"headers\": [\n    {\n      \"source\": \"/(.*)\",\n      \"headers\": [\n        { \"key\": \"x-frame-options\", \"value\": \"SAMEORIGIN\" },\n        { \"key\": \"x-content-type-options\", \"value\": \"nosniff\" }\n      ]\n    }\n  ],\n  \"redirects\": [],\n  \"rewrites\": []\n}
+{
+  "version": 2,
+  "framework": "nextjs",
+  "installCommand": "npm ci || npm i",
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next"
+}

@@ -1,1 +1,7 @@
-/** @type {import('next').NextConfig} */\nconst nextConfig = {\n  images: {\n    remotePatterns: [\n      { protocol: "https", hostname: "**.vercel.app" },\n      { protocol: "https", hostname: "**.stackfold.com" },\n      { protocol: "https", hostname: "**" },\n    ],\n  },\n};\nmodule.exports = nextConfig;
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
+  output: 'standalone',
+  experimental: { serverActions: { allowedOrigins: ['*'] } }
+};
+module.exports = nextConfig;
