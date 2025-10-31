@@ -1,0 +1,1 @@
+{\n  \"headers\": [\n    {\n      \"source\": \"/(.*)\",\n      \"headers\": [\n        { \"key\": \"x-frame-options\", \"value\": \"SAMEORIGIN\" },\n        { \"key\": \"x-content-type-options\", \"value\": \"nosniff\" }\n      ]\n    }\n  ],\n  \"redirects\": [],\n  \"rewrites\": []\n}
