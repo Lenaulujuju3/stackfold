@@ -1,0 +1,26 @@
+name: Restore UI from 829b046
+on:
+  workflow_dispatch:
+
+jobs:
+  restore:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Restore files from 829b046 without force-push
+        run: |
+          # wipe working tree (keep .git)
+          git rm -r --cached .
+          rm -rf *
+          # bring files from your full-UI commit
+          git checkout 829b046 -- .
+          # re-add everything and commit on top of master
+          git add -A
+          git commit -m "restore: bring back full StackFold UI from 829b046 (keep deploy pipeline)"
+          git push
