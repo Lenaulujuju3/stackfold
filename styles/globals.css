@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* basic resets to avoid invisible text */
+html, body { min-height: 100%; }
+body { background-color: white; color: black; }
+:root { --radius: 1rem; }
