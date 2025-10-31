@@ -14,7 +14,7 @@ export default function Home() {
           </nav>
           <div className="py-10 md:py-16 grid md:grid-cols-2 gap-8">
             <div>
-              <h1 className="h1">Consumer Demand Cohorts for High-Performance Insurance Acquisition</h1>
+              <h1 className="h1">Consumer Demand Cohorts for High-Performance Insurance Acquisition.</h1>
               <p className="mt-4 subtle">
                 ZIP-level segmentation, channel reachability, and activation-ready audience cohorts
                 built for call centers and direct-response teams.
