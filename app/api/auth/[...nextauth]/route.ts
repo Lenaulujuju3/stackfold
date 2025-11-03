@@ -1,0 +1,2 @@
+import NextAuth from 'next-auth';import Credentials from 'next-auth/providers/credentials';
+const handler=NextAuth({session:{strategy:'jwt'},providers:[Credentials({name:'Credentials',credentials:{email:{label:'Email',type:'email'},password:{label:'Password',type:'password'}},async authorize(creds){const e=process.env.ADMIN_EMAIL,p=process.env.ADMIN_PASSWORD;if(!creds?.email||!creds?.password||!e||!p)return null;return (creds.email===e&&creds.password===p)?{id:'admin',name:'Admin',email:e}:null;}})],pages:{signIn:'/login'}});export { handler as GET, handler as POST };
